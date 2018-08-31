@@ -35,7 +35,7 @@ The service requires the following settings to be configured in the [ConsoleApp.
 
 The `CleanupDirectoryPath` setting specifies a directory to monitor and cleanup.
 
-#### Example:
+#### Example
 
 The following value of the `CleanupDirectoryPath` setting:
 
