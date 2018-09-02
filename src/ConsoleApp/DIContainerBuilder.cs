@@ -27,7 +27,7 @@ namespace RetentionService.ConsoleApp
 
             RegisterConfigSingleton(builder);
             RegisterStorage(builder);
-            RegisterRetentionRules(builder);
+            RegisterRetentionPolicy(builder);
 
             builder.RegisterType<CleanupExecutor>().AsSelf();
             builder.RegisterType<App>().AsSelf();
@@ -53,9 +53,9 @@ namespace RetentionService.ConsoleApp
                     (pi, ctx) => pi.ParameterType == typeof(string) && pi.Name == "directoryPath",
                     (pi, ctx) => ctx.Resolve<Config>().CleanupDirectoryPath);
 
-        private static void RegisterRetentionRules(ContainerBuilder builder) =>
+        private static void RegisterRetentionPolicy(ContainerBuilder builder) =>
             builder
-                .Register(ctx => new RetentionRuleSet(ctx.Resolve<Config>().RetentionRules))
+                .Register(ctx => new RetentionPolicy(ctx.Resolve<Config>().RetentionRules))
                 .As<IStaleItemsDetector>();
     }
 }

@@ -10,20 +10,23 @@ using RetentionService.Cleanup.Contracts;
 namespace RetentionService.RetentionRules
 {
     /// <summary>
-    /// Represents the set of conformed retention rules that
-    /// do neither contradict nor duplicate each other.
+    /// Represents the retention policy.
     /// </summary>
-    public class RetentionRuleSet : IStaleItemsDetector
+    /// <remarks>
+    /// The policy is defined by a set of conformed retention rules that
+    /// do neither contradict nor duplicate each other.
+    /// </remarks>
+    public class RetentionPolicy : IStaleItemsDetector
     {
         private static readonly RulesConsistencyValidator Validator = new RulesConsistencyValidator();
 
         private readonly IReadOnlyList<RetentionRule> _orderedRules;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RetentionRuleSet" /> class.
+        /// Initializes a new instance of the <see cref="RetentionPolicy" /> class.
         /// </summary>
         /// <param name="rules">
-        /// The collection of rules to build a rule-set.
+        /// The collection of rules that define the policy.
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="rules"/> is <see langword="null"/>.
@@ -33,7 +36,7 @@ namespace RetentionService.RetentionRules
         /// <paramref name="rules"/> is empty or
         /// <paramref name="rules"/> contains duplicate or mutually contradictory items.
         /// </exception>
-        public RetentionRuleSet([NotNull][ItemNotNull] IReadOnlyCollection<RetentionRule> rules)
+        public RetentionPolicy([NotNull][ItemNotNull] IReadOnlyCollection<RetentionRule> rules)
         {
             AssertArg.NotNullOrEmpty(rules, nameof(rules));
             AssertArg.NoNullItems(rules, nameof(rules));
@@ -93,9 +96,11 @@ namespace RetentionService.RetentionRules
         }
 
         /// <summary>
-        /// Returns a string that represents the ruleset.
+        /// Returns a string that represents a collection of rules that define the policy.
         /// </summary>
-        /// <returns>A string that represents the ruleset.</returns>
+        /// <returns>
+        /// A string that represents a collection of rules that define the policy.
+        /// </returns>
         public override string ToString() =>
             string.Join(" ", _orderedRules);
     }

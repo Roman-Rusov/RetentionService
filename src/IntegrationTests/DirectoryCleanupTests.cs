@@ -66,7 +66,7 @@ namespace RetentionService.IntegrationTests
             var now = DateTime.UtcNow;
 
             var rules = rulesData.ParseRules();
-            var ruleSet = new RetentionRuleSet(rules);
+            var policy = new RetentionPolicy(rules);
 
             var resources = resourceDetails.ParseResourceDetails();
 
@@ -80,7 +80,7 @@ namespace RetentionService.IntegrationTests
             var storage = new DirectoryFileStorage(_storageDirectory);
 
             // Act.
-            await new CleanupExecutor().ExecuteStorageCleanup(storage, ruleSet);
+            await new CleanupExecutor().ExecuteStorageCleanup(storage, policy);
 
             // Assert.
             var actualRetainedFileNames = Directory

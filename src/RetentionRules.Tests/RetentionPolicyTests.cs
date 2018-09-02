@@ -12,9 +12,9 @@ using static System.StringSplitOptions;
 namespace RetentionService.RetentionRules.Tests
 {
     /// <summary>
-    /// Represents the set of tests of the <see cref="RetentionRuleSet"/> class.
+    /// Represents the set of tests of the <see cref="RetentionPolicy"/> class.
     /// </summary>
-    public class RetentionRuleSetTests
+    public class RetentionPolicyTests
     {
         [Test]
         public void Ctor_should_throw_ArgumentNullException_on_null_rules_collection() =>
@@ -61,16 +61,16 @@ namespace RetentionService.RetentionRules.Tests
         {
             // Arrange.
             var rules = rulesData.ParseRules();
-            var ruleSet = new RetentionRuleSet(rules);
+            var policy = new RetentionPolicy(rules);
             var resources = resourceDetails.ParseResourceDetails();
             var items = resources.Select(r => (r.Address, r.Age));
             var expectedStaleItems = expectedStaleItemsData.Split(new []{' '}, RemoveEmptyEntries);
 
             // Act.
-            var actualStaelItems = ruleSet.FindStaleItems(items).ToArray();
+            var actualStaleItems = policy.FindStaleItems(items).ToArray();
 
             // Assert.
-            actualStaelItems.Should().BeEquivalentTo(expectedStaleItems);
+            actualStaleItems.Should().BeEquivalentTo(expectedStaleItems);
         }
 
         private static void AssertConstructorThrows<TException>(
@@ -78,7 +78,7 @@ namespace RetentionService.RetentionRules.Tests
             where TException : Exception
         {
             // Act + Assert.
-            Assert.Throws<TException>(() => new RetentionRuleSet(rules));
+            Assert.Throws<TException>(() => new RetentionPolicy(rules));
         }
     }
 }
