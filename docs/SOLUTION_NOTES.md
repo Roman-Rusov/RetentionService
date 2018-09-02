@@ -39,7 +39,7 @@ If rules consistency validation fails, then no directory cleanup is performed.
 
 ### Rules strictness 
 
-It'd be possible not to validate rules. They could be softly be led to consistency. This could be achieved by:
+It'd be possible not to validate rules. They could softly be led to consistency. This could be achieved by:
 * overriding duplicate rules by those ones that are defined later in the ruleset,
 * not paying attention to contradictions between rules.
 
