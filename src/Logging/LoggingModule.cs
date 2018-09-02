@@ -13,7 +13,7 @@ using Module = Autofac.Module;
 namespace Logging
 {
     /// <summary>
-    /// The module that facilitates injecting properly configured log4net logger.
+    /// Represents the module that facilitates injecting properly configured log4net logger.
     /// </summary>
     /// <remarks>
     /// Please refer to the https://autofaccn.readthedocs.io/en/latest/examples/log4net.html page.
