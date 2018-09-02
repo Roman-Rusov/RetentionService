@@ -1,5 +1,19 @@
 ﻿# Retention Service Guide
 
+## Table of contents
+- [Start and stop](#start-and-stop)
+  * [Under the hood](#under-the-hood)
+- [Cleanup execution mechanism](#cleanup-execution-mechanism)
+  * [Cleanup periodicity](#cleanup-periodicity)
+  * [Working on battery](#working-on-battery)
+- [Configuration](#configuration)
+  * [Directory to monitor and cleanup](#directory-to-monitor-and-cleanup)
+    + [Example](#directory-to-monitor-and-cleanup--example)
+  * [Retention rules](#retention-rules)
+    + [Example](#retention-rules--example)
+  * [Logs configuration filename](#logs-configuration-filename)
+    + [Example](#logs-configuration-filename--example)
+
 ## Start and stop
 
 Use [start.cmd](bin/Debug/start.cmd) and [stop.cmd](stop.cmd) to launch and cease recurring execution of directory cleanup executor. Run [start.cmd](bin/Debug/start.cmd) **in build output folder only**, not in sources, as it requires presence of compiled binaries alongside with it. [stop.cmd](stop.cmd) can be run from any folder.
@@ -35,6 +49,7 @@ The service requires the following settings to be configured in the [ConsoleApp.
 
 The `CleanupDirectoryPath` setting specifies a directory to monitor and cleanup.
 
+<a id="directory-to-monitor-and-cleanup--example" name="directory-to-monitor-and-cleanup--example"></a>
 #### Example
 
 The following value of the `CleanupDirectoryPath` setting:
@@ -56,6 +71,7 @@ d:n [d:n [d:n ...]]
 * where `d` defines a scope of a rule as "older than days", i.e. which items the rule can be applied to,
 * and `n` defines a number of items under the rule that can be kept retained.
 
+<a id="retention-rules--example" name="retention-rules--example"></a>
 #### Example
 
 The value of the `RetentionRules` setting below:
@@ -74,6 +90,7 @@ means the following:
 
 The `LogConfigFileName` setting specifies the name of the log4net configuration file. The setting is optional. If it is not specified then the following filename would be used as default: [log4net.config](bin/Debug/log4net.config). Please refer to the log4net configuration documentation for details: https://logging.apache.org/log4net/release/manual/configuration.html#Configuration_Syntax.
 
+<a id="logs-configuration-filename--example" name="logs-configuration-filename--example"></a>
 #### Example
 
 The following value of the `LogConfigFileName` setting:
