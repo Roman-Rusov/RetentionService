@@ -1,5 +1,22 @@
 # Notes regarding solution to the [problem](PROBLEM.md) and implementation
 
+## Table of contents
+- [Windows Task Scheduler](#windows-task-scheduler)
+- [Cleanup execution pipeline](#cleanup-execution-pipeline)
+- [Features limit](#features-limit)
+- [Age of a file](#age-of-a-file)
+- [Retention rules consistency](#retention-rules-consistency)
+  * [Examples](#retention-rules-consistency--examples)
+  * [Rules strictness](#rules-strictness)
+- [Error handling constraints](#error-handling-constraints)
+- [Tests](#tests)
+- [Documentation](#documentation)
+- [Access-policy constraints](#access-policy-constraints)
+- [Logging](#logging)
+- [Code Style](#code-style)
+- [SOLID](#solid)
+  * [Example](#solid--example)
+
 ## Windows Task Scheduler
 
 As only a handful of files is created during a day, there is no need to keep a process or a Windows service awaiting for an event of a new file recording to the disk is occurred. So neither [FileSystemWatcher](https://docs.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher) nor [System.Threading.Timer](https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer) is required. The most simple and efficient decision is to run executable file periodically by means of **Windows Task Scheduler**.
@@ -30,6 +47,7 @@ The rules that are read from configuration are validated. It's verified that the
 * *duplicate* if they are defined for same item age,
 * *contradictory* if they allow retaining a larger number of older files than it's allowed to retain younger files.
 
+<a id="retention-rules-consistency--examples" name="retention-rules-consistency--examples"></a>
 ### Examples
 
 * Rules "no more than 10 files older than 3 days" and "no more than 5 files older than 3 days" are duplicating each other because they both are defined for the same age - 3 days.
@@ -82,6 +100,7 @@ The system is designed by following SOLID principles, namely:
 * Interfaces contain only minimal set of members that their consumers require.
 * Upper layers publish abstract contracts they require. All layers depend on the abstract contracts and are not aware of each other.
 
+<a id="solid--example" name="solid--example"></a>
 ### Example
 
 It's easy to define a new type of a storage that can replace the storage of files in directory. E.g. a web resource storage can be introduced. In this case, no code in other parts of the system will be affected. The only changes that are required are limited to dependencies registration.
