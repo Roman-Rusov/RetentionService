@@ -21,12 +21,12 @@ namespace RetentionService.RetentionRules
             AssertArg.NotNullOrEmpty(rules, nameof(rules));
             AssertArg.NoNullItems(rules, nameof(rules));
 
-            AssertNoDuplications(rules);
+            AssertNoDuplicates(rules);
 
-            AssertNoCntradictions(rules);
+            AssertNoContradictions(rules);
         }
 
-        private static void AssertNoDuplications(IReadOnlyCollection<RetentionRule> rules)
+        private static void AssertNoDuplicates(IReadOnlyCollection<RetentionRule> rules)
         {
             var uniqueRuleCount = new HashSet<TimeSpan>(rules.Select(r => r.OlderThan)).Count;
             if (uniqueRuleCount != rules.Count)
@@ -35,7 +35,7 @@ namespace RetentionService.RetentionRules
             }
         }
 
-        private static void AssertNoCntradictions(IReadOnlyCollection<RetentionRule> rules)
+        private static void AssertNoContradictions(IReadOnlyCollection<RetentionRule> rules)
         {
             var orderedRules = rules.OrderBy(r => r.OlderThan).ToArray();
             var shorterAllowedAmount = orderedRules.First().AllowedAmount;
