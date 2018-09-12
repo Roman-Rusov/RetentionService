@@ -3,7 +3,7 @@
 namespace RetentionService.Cleanup.Contracts
 {
     /// <summary>
-    /// Represents a object that encapsulates set of properties of a resource.
+    /// Represents an object that encapsulates set of properties of a resource.
     /// </summary>
     public class ResourceDetails
     {
