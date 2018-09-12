@@ -55,7 +55,7 @@ namespace RetentionService.IntegrationTests
             "1:5 3:3 5:2 10:1 14:0",
             "0.2 0.9 1.1 2 3 4 5 6",
             "0.2 0.9 1.1 2 3 4 5")]
-        public async Task Worker_should_cleanup_stale_files(
+        public async Task CleanupExecutor_should_delete_stale_files(
             string rulesData,
             string resourceDetails,
             string expectedRetainedFiles)

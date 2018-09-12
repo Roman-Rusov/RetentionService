@@ -17,15 +17,15 @@ namespace RetentionService.RetentionRules.Tests
     public class RetentionPolicyTests
     {
         [Test]
-        public void Ctor_should_throw_ArgumentNullException_on_null_rules_collection() =>
+        public void Ctor_should_throw_ArgumentNullException_if_rules_argument_is_null() =>
             AssertConstructorThrows<ArgumentNullException>(null);
 
         [Test]
-        public void Ctor_should_throw_ArgumentException_on_empty_rules_collection() =>
+        public void Ctor_should_throw_ArgumentException_if_rules_argument_is_an_empty_collection() =>
             AssertConstructorThrows<ArgumentException>(new RetentionRule[0]);
 
         [Test]
-        public void Ctor_should_throw_ArgumentException_on_null_rule_in_collection() =>
+        public void Ctor_should_throw_ArgumentException_if_rules_argument_contains_null_element() =>
             AssertConstructorThrows<ArgumentException>(new RetentionRule[] { null });
 
         [TestCase(

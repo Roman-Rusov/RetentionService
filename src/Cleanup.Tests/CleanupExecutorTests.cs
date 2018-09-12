@@ -20,7 +20,7 @@ namespace RetentionService.Cleanup.Tests
     public class CleanupExecutorTests
     {
         [Test]
-        public void CleanupExecutor_should_throw_ArgumentNullException_if_storage_is_null()
+        public void ExecuteStorageCleanup_should_throw_ArgumentNullException_if_storage_argument_is_null()
         {
             var executor = CreateCleanupExecutor();
 
@@ -29,7 +29,7 @@ namespace RetentionService.Cleanup.Tests
         }
 
         [Test]
-        public void CleanupExecutor_should_throw_ArgumentNullException_if_stale_items_detector_is_null()
+        public void ExecuteStorageCleanup_should_throw_ArgumentNullException_if_stale_items_detector_argument_is_null()
         {
             var executor = CreateCleanupExecutor();
 
@@ -62,7 +62,7 @@ namespace RetentionService.Cleanup.Tests
             "100 500 -0.0001",
             Description =
                 "CleanupExecutor absolutely relies on stale items detector even if the detector lies.")]
-        public async Task CleanupExecutor_should_request_deletion_of_resources_considered_as_stale_by_stale_items_detector(
+        public async Task ExecuteStorageCleanup_should_request_deletion_of_resources_considered_as_stale_by_stale_items_detector(
             string resourceDetails,
             string staleResourcesAddresses)
         {

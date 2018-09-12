@@ -14,7 +14,7 @@ namespace RetentionService.RetentionRules.Tests
         [TestCase(6, 0)]
         [TestCase(0, 0)]
         [TestCase(1e6, int.MaxValue)]
-        public void RetentionRule_ctor_be_successfully_constructed_with_valid_arguments(
+        public void Ctor_should_be_successfully_completed_with_valid_arguments(
             double olderThanDays,
             int allowedAmount)
         {
@@ -26,7 +26,7 @@ namespace RetentionService.RetentionRules.Tests
         [TestCase(-1)]
         [TestCase((int)-1e6)]
         [TestCase(-int.MaxValue)]
-        public void RetentionRule_ctor_should_throw_exception_if_allowed_amount_is_negative(
+        public void Ctor_should_throw_ArgumentOutOfRangeException_if_allowed_amount_argument_is_negative(
             int allowedAmount)
         {
             Assert.Throws<ArgumentOutOfRangeException>(
@@ -36,7 +36,7 @@ namespace RetentionService.RetentionRules.Tests
         [TestCase(-1e-8)]
         [TestCase(-5D)]
         [TestCase(-1e6)]
-        public void RetentionRule_ctor_should_throw_exception_if_olderThan_interval_is_negative(
+        public void Ctor_should_throw_ArgumentOutOfRangeException_if_older_than_argument_is_negative(
             double olderThanDays)
         {
             var olderThan = TimeSpan.FromDays(olderThanDays);
