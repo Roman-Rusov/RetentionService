@@ -11,7 +11,7 @@
     + [Example](#directory-to-monitor-and-cleanup--example)
   * [Retention rules](#retention-rules)
     + [Example](#retention-rules--example)
-  * [Logs configuration filename](#logs-configuration-filename)
+  * [Logs configuration file path](#logs-configuration-filename)
     + [Example](#logs-configuration-filename--example)
 
 ## Start and stop
@@ -41,7 +41,7 @@ Please note that the task is not being executed when machine is working on batte
 ## Configuration
 
 The service requires the following settings to be configured in the:
-* [app.config.json](app.config.json) file:
+* [app.config.json](app.config.json) file in the `cleanup` node:
   * `cleanupDirectoryPath` - a directory to monitor and cleanup,
   * `retentionRules` - rules that define which files in the directory should be retained,
 * [log.config.ini](log.config.ini) file:
@@ -82,24 +82,19 @@ The `retentionRules` setting specifies an array of rules of retaining files in t
 The value of the `retentionRules` setting below:
 
 ``` JSON
-"retentionRules": [
-    {
-      "olderThan": 1,
-      "allowedAmount": 8
-    },
-    {
-      "olderThan": 10,
-      "allowedAmount": 5
-    },
-    {
-      "olderThan": 14,
-      "allowedAmount": 5
-    },
-    {
-      "olderThan": 21,
-      "allowedAmount": 1
-    }
-  ]
+"retentionRules": [{
+    "olderThan": 3,
+    "allowedAmount": 4
+  }, {
+    "olderThan": 7,
+    "allowedAmount": 4
+  }, {
+    "olderThan": 14,
+    "allowedAmount": 1
+  }, {
+    "olderThan": 20,
+    "allowedAmount": 0
+  }]
 ```
 
 means the following:
@@ -108,17 +103,18 @@ means the following:
 * retain no more than 1 file that is older than 14 days,
 * and don't retain any files that are older than 20 days.
 
-### Logs configuration filename
+### Logs configuration file path
 
-The `LogConfigFileName` setting specifies the name of the log4net configuration file. The setting is optional. If it is not specified then the following filename would be used as default: [log4net.config](bin/Debug/log4net.config). Please refer to the log4net configuration documentation for details: https://logging.apache.org/log4net/release/manual/configuration.html#Configuration_Syntax.
+The `ConfigFilePath` setting specifies the name of the log4net configuration file. The setting is optional. If it is not specified then the following filename would be used as default: [log4net.config](../Logging/log4net.config). Please refer to the log4net configuration documentation for details: https://logging.apache.org/log4net/release/manual/configuration.html#Configuration_Syntax.
 
 <a id="logs-configuration-filename--example" name="logs-configuration-filename--example"></a>
 #### Example
 
-The following value of the `LogConfigFileName` setting:
+The following value of the `ConfigFilePath` setting:
 
-``` XML
-<add key="LogConfigFileName" value="log4net.config"/>
+``` INI
+[log4net]
+ConfigFilePath=log4net.config
 ```
 
-says that log configuration can be found in the [log4net.config](bin/Debug/log4net.config) file.
+says that log configuration can be found in the [log4net.config](../Logging/log4net.config) file.
