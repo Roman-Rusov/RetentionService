@@ -22,7 +22,7 @@ namespace RetentionService.ConsoleApp
         {
             var builder = new ContainerBuilder();
 
-            var logConfig = LogConfiguration.BuildConfig();
+            var logConfig = LogConfigBuilder.Build();
             builder.RegisterModule(new LoggingModule(logConfig));
 
             RegisterConfigSingleton(builder);
@@ -37,10 +37,10 @@ namespace RetentionService.ConsoleApp
 
         private static void RegisterConfigSingleton(ContainerBuilder builder)
         {
-            builder.RegisterType<ConfigurationBuilder>().AsSelf();
+            builder.RegisterType<AppConfigBuilder>().AsSelf();
 
             builder
-                .Register(ctx => ctx.Resolve<ConfigurationBuilder>().BuildConfig())
+                .Register(ctx => ctx.Resolve<AppConfigBuilder>().Build())
                 .SingleInstance();
         }
 
@@ -51,11 +51,11 @@ namespace RetentionService.ConsoleApp
                 .WithParameter(
                     // Note: This approach is rather fragile.
                     (pi, ctx) => pi.ParameterType == typeof(string) && pi.Name == "directoryPath",
-                    (pi, ctx) => ctx.Resolve<Config>().CleanupDirectoryPath);
+                    (pi, ctx) => ctx.Resolve<AppConfig>().CleanupDirectoryPath);
 
         private static void RegisterRetentionPolicy(ContainerBuilder builder) =>
             builder
-                .Register(ctx => new RetentionPolicy(ctx.Resolve<Config>().RetentionRules))
+                .Register(ctx => new RetentionPolicy(ctx.Resolve<AppConfig>().RetentionRules))
                 .As<IStaleItemsDetector>();
     }
 }

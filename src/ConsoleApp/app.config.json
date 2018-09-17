@@ -1,0 +1,23 @@
+{
+  "cleanup": {
+    "cleanupDirectoryPath": "D:/Test Storage (DON'T FORGET TO REMOVE ME!)",
+    "retentionRules": [
+      {
+        "olderThan": 1,
+        "allowedAmount": 8
+      },
+      {
+        "olderThan": 10,
+        "allowedAmount": 5
+      },
+      {
+        "olderThan": 14,
+        "allowedAmount": 5
+      },
+      {
+        "olderThan": 21,
+        "allowedAmount": 1
+      }
+    ] 
+  }
+}
