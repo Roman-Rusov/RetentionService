@@ -16,7 +16,7 @@
 
 ## Start and stop
 
-Use [start.cmd](bin/Debug/start.cmd) and [stop.cmd](stop.cmd) to launch and cease recurring execution of directory cleanup executor. Run [start.cmd](bin/Debug/start.cmd) **in build output folder only**, not in sources, as it requires presence of compiled binaries alongside with it. [stop.cmd](stop.cmd) can be run from any folder.
+Use [start.cmd](start.cmd) and [stop.cmd](stop.cmd) to launch and cease recurring execution of directory cleanup executor. Run [start.cmd](start.cmd) **in build output folder only**, not in sources, as it requires presence of compiled binaries alongside with it. [stop.cmd](stop.cmd) can be run from any folder.
 
 ### Under the hood
 
@@ -28,11 +28,11 @@ schtasks /query /v /fo LIST /tn RetentionService.CleanupTask
 
 ## Cleanup execution mechanism
 
-The `RetentionService.CleanupTask` task runs [ConsoleApp.exe](bin/Debug/ConsoleApp.exe) file each hour.
+The `RetentionService.CleanupTask` task runs *ConsoleApp.exe* file each hour.
 
 ### Cleanup periodicity
 
-The period the [ConsoleApp.exe](bin/Debug/ConsoleApp.exe) is run is not designed to be configurable, but one can change it by modifying [Start-RetentionService.ps1](Start-RetentionService.ps1) script. Please refer to the documentation on [schtasks.exe](C:/Windows/System32/schtasks.exe) https://docs.microsoft.com/en-us/windows/desktop/taskschd/schtasks if you are going to make changes in the script.
+The period the ConsoleApp.exe is run is not designed to be configurable, but one can change it by modifying [Start-RetentionService.ps1](Start-RetentionService.ps1) script. Please refer to the documentation on [schtasks.exe](C:/Windows/System32/schtasks.exe) https://docs.microsoft.com/en-us/windows/desktop/taskschd/schtasks if you are going to make changes in the script.
 
 ### Working on battery
 
@@ -40,44 +40,66 @@ Please note that the task is not being executed when machine is working on batte
 
 ## Configuration
 
-The service requires the following settings to be configured in the [ConsoleApp.exe.config](bin/Debug/ConsoleApp.exe.config) file:
-* `CleanupDirectoryPath` - a directory to monitor and cleanup,
-* `RetentionRules` - rules that define which files in the directory should be retained,
-* `LogConfigFileName` - the name of the log4net configuration file.
+The service requires the following settings to be configured in the:
+* [app.config.json](app.config.json) file:
+  * `cleanupDirectoryPath` - a directory to monitor and cleanup,
+  * `retentionRules` - rules that define which files in the directory should be retained,
+* [log.config.ini](log.config.ini) file:
+  * `ConfigFilePath` property in the `[log4net]` section - a path of the log4net configuration file.
 
 ### Directory to monitor and cleanup
 
-The `CleanupDirectoryPath` setting specifies a directory to monitor and cleanup.
+The `cleanupDirectoryPath` setting specifies a directory to monitor and cleanup.
 
 <a id="directory-to-monitor-and-cleanup--example" name="directory-to-monitor-and-cleanup--example"></a>
 #### Example
 
-The following value of the `CleanupDirectoryPath` setting:
+The following value of the `cleanupDirectoryPath` setting:
 
-``` XML
-<add key="CleanupDirectoryPath" value="D:\Test Storage (DON'T FORGET TO REMOVE ME!)"/>
+``` JSON
+"cleanupDirectoryPath": "D:/Test Storage (DON'T FORGET TO REMOVE ME!)"
 ```
 
 makes cleanup executor to be targeted to the "D:\Test Storage (DON'T FORGET TO REMOVE ME!)" directory.
 
 ### Retention rules
 
-The `RetentionRules` setting specifies rules of retaining files in the directory being monitored. The retention rules should be defined in the following format:
+The `retentionRules` setting specifies an array of rules of retaining files in the directory being monitored. Each retention rule should be defined in the following format:
 
-```
-d:n [d:n [d:n ...]]
+``` JSON
+{
+  "olderThan": number,
+  "allowedAmount": number
+},
 ```
 
-* where `d` defines a scope of a rule as "older than days", i.e. which items the rule can be applied to,
-* and `n` defines a number of items under the rule that can be kept retained.
+* where `olderThan` defines a scope of a rule as "older than days", i.e. which items the rule can be applied to,
+* and `allowedAmount` defines a number of items under the rule that can be kept retained.
 
 <a id="retention-rules--example" name="retention-rules--example"></a>
 #### Example
 
-The value of the `RetentionRules` setting below:
+The value of the `retentionRules` setting below:
 
-``` XML
-<add key="RetentionRules" value="3:4 7:4 14:1 20:0"/>
+``` JSON
+"retentionRules": [
+    {
+      "olderThan": 1,
+      "allowedAmount": 8
+    },
+    {
+      "olderThan": 10,
+      "allowedAmount": 5
+    },
+    {
+      "olderThan": 14,
+      "allowedAmount": 5
+    },
+    {
+      "olderThan": 21,
+      "allowedAmount": 1
+    }
+  ]
 ```
 
 means the following:
