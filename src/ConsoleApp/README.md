@@ -11,8 +11,8 @@
     + [Example](#directory-to-monitor-and-cleanup--example)
   * [Retention rules](#retention-rules)
     + [Example](#retention-rules--example)
-  * [Logs configuration file path](#logs-configuration-filename)
-    + [Example](#logs-configuration-filename--example)
+  * [Logs configuration file path](#logs-configuration-file-path)
+    + [Example](#logs-configuration-file-path--example)
 
 ## Start and stop
 
@@ -107,7 +107,7 @@ means the following:
 
 The `ConfigFilePath` setting specifies the name of the log4net configuration file. The setting is optional. If it is not specified then the following filename would be used as default: [log4net.config](../Logging/log4net.config). Please refer to the log4net configuration documentation for details: https://logging.apache.org/log4net/release/manual/configuration.html#Configuration_Syntax.
 
-<a id="logs-configuration-filename--example" name="logs-configuration-filename--example"></a>
+<a id="logs-configuration-file-path--example" name="logs-configuration-file-path--example"></a>
 #### Example
 
 The following value of the `ConfigFilePath` setting:
