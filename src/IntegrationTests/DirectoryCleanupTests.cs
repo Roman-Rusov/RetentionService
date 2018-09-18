@@ -63,12 +63,10 @@ namespace RetentionService.IntegrationTests
             // Arrange.
             var expectedRetainedFileNames = expectedRetainedFiles.Split(new[] {' '}, RemoveEmptyEntries);
 
-            var now = DateTime.UtcNow;
-
             var rules = rulesData.ParseRules();
             var policy = new RetentionPolicy(rules);
 
-            CreateFilesInStorage(resourceDetails, now);
+            CreateFilesInStorage(resourceDetails);
 
             var storage = new DirectoryFileStorage(_storageDirectory);
 
@@ -83,8 +81,10 @@ namespace RetentionService.IntegrationTests
             actualRetainedFileNames.ShouldAllBeEquivalentTo(expectedRetainedFileNames);
         }
 
-        private void CreateFilesInStorage(string resourceDetails, DateTime now)
+        private void CreateFilesInStorage(string resourceDetails)
         {
+            var now = DateTime.UtcNow;
+
             var resources = resourceDetails.ParseResources();
 
             resources.ForEach(r =>
