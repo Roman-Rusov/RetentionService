@@ -25,16 +25,16 @@ namespace RetentionService.Cleanup.Tests
             var executor = CreateCleanupExecutor();
 
             Assert.ThrowsAsync<ArgumentNullException>(
-                () => executor.ExecuteStorageCleanup(null, A.Fake<IStaleItemsDetector>()));
+                () => executor.ExecuteStorageCleanup<object>(null, A.Fake<IResourceExpirationPolicy>()));
         }
 
         [Test]
-        public void ExecuteStorageCleanup_should_throw_ArgumentNullException_if_stale_items_detector_argument_is_null()
+        public void ExecuteStorageCleanup_should_throw_ArgumentNullException_if_expirationPolicy_argument_is_null()
         {
             var executor = CreateCleanupExecutor();
 
             Assert.ThrowsAsync<ArgumentNullException>(
-                () => executor.ExecuteStorageCleanup(A.Fake<IResourceStorage>(), null));
+                () => executor.ExecuteStorageCleanup(A.Fake<IResourceStorage<object>>(), null));
         }
 
         [TestCase(
@@ -56,47 +56,47 @@ namespace RetentionService.Cleanup.Tests
             "0.2 0.9 1.1 2 3 4 5 6",
             "0.2 1.1 3 5",
             Description =
-                "CleanupExecutor absolutely relies on stale items detector even if the detector lies.")]
+                "CleanupExecutor absolutely relies on expiration policy even if the policy lies.")]
         [TestCase(
             "1 2 3",
             "100 500 -0.0001",
             Description =
-                "CleanupExecutor absolutely relies on stale items detector even if the detector lies.")]
-        public async Task ExecuteStorageCleanup_should_request_deletion_of_resources_considered_as_stale_by_stale_items_detector(
+                "CleanupExecutor absolutely relies on expiration policy even if the policy lies.")]
+        public async Task ExecuteStorageCleanup_should_request_deletion_of_resources_considered_as_expired_by_expirationPolicy(
             string resourceDetails,
-            string staleResourcesAddresses)
+            string expiredResourcesIdsData)
         {
             // Arrange.
-            var staleResources = staleResourcesAddresses.Split(new[] {' '}, RemoveEmptyEntries);
+            var expiredResourceIds = expiredResourcesIdsData.Split(new[] {' '}, RemoveEmptyEntries);
 
-            var resources = resourceDetails.ParseResourceDetails();
+            var resources = resourceDetails.ParseResources();
             var storage = CreateFakeStorage(resources);
 
-            var staleItemsDetector = A.Fake<IStaleItemsDetector>();
+            var expirationPolicy = A.Fake<IResourceExpirationPolicy>();
 
-            A.CallTo(() => staleItemsDetector.FindStaleItems(A<IEnumerable<(string, TimeSpan)>>._))
-                .Returns(staleResources);
+            A.CallTo(() => expirationPolicy.FindExpiredResources(A<IReadOnlyCollection<IResource<string>>>._))
+                .Returns(expiredResourceIds);
 
             var cleanupExecutor = CreateCleanupExecutor();
 
             // Act.
-            await cleanupExecutor.ExecuteStorageCleanup(storage, staleItemsDetector);
+            await cleanupExecutor.ExecuteStorageCleanup(storage, expirationPolicy);
 
             // Assert.
-            _deletedResources.ShouldAllBeEquivalentTo(staleResources);
+            _deletedResourceIds.ShouldAllBeEquivalentTo(expiredResourceIds);
         }
 
-        private IResourceStorage CreateFakeStorage(IEnumerable<ResourceDetails> resources)
+        private IResourceStorage<string> CreateFakeStorage(IReadOnlyCollection<FakeResource> resources)
         {
-            var storage = A.Fake<IResourceStorage>();
+            var storage = A.Fake<IResourceStorage<string>>();
 
             A.CallTo(() => storage.GetResourceDetails())
-                .ReturnsLazily(() => Task.FromResult(resources));
+                .ReturnsLazily(() => Task.FromResult(resources.Cast<IResource<string>>()));
 
             A.CallTo(() => storage.DeleteResources(A<IEnumerable<string>>._))
-                .Invokes((IEnumerable<string> resourcesToDelete) =>
+                .Invokes((IEnumerable<string> resourceIdsToDelete) =>
                 {
-                    _deletedResources = resourcesToDelete.ToArray();
+                    _deletedResourceIds = resourceIdsToDelete.ToArray();
                 })
                 .ReturnsLazily(() => Task.CompletedTask);
 
@@ -106,6 +106,6 @@ namespace RetentionService.Cleanup.Tests
         private static CleanupExecutor CreateCleanupExecutor()
             => new CleanupExecutor();
 
-        private string[] _deletedResources;
+        private string[] _deletedResourceIds;
     }
 }

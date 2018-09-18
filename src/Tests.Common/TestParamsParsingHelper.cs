@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 
-using RetentionService.Cleanup.Contracts;
 using RetentionService.RetentionRules;
 
 using static System.StringSplitOptions;
@@ -36,18 +35,18 @@ namespace RetentionService.Tests.Common
                 .ToArray();
 
         /// <summary>
-        /// Parses the string that represents a sequence of space separated resource details items.
-        /// Each item is considered to be a comma separated pair of a resource's address and age.
-        /// Item address shouldn't contain neither space symbols and nor comma (:).
+        /// Parses the string that represents a sequence of space separated resource items.
+        /// Each item is considered to be a comma separated pair of a resource's identifier and age. 
+        /// Item identifier shouldn't contain neither space symbols and nor comma (:).
         /// Item ages are expressed in days and represented as <see langword="double"/>.
-        /// It is allowed to omit resource address, then the age will be considered as the address.
+        /// It is allowed to omit resource identifier, then the age will be considered as identifier.
         /// </summary>
-        /// <param name="itemAges"> The set of resources' addresses and ages. </param>
-        /// <returns> The sequence of resource details. </returns>
+        /// <param name="itemAges"> The set of resources' identifiers and ages. </param>
+        /// <returns> The sequence of resource items. </returns>
         /// <example>
-        /// "1:0.2 2:0.9 3:1.7 4:2 5:3.3 19 1250.01 30 an_address:100.00".ParseResourceDetails()
+        /// "1:0.2 2:0.9 3:1.7 4:2 5:3.3 19 1250.01 30 an_address:100.00".ParseResources()
         /// </example>
-        public static ResourceDetails[] ParseResourceDetails(this string itemAges) =>
+        public static FakeResource[] ParseResources(this string itemAges) =>
             itemAges
                 .Split(new[] { ' ' }, RemoveEmptyEntries)
                 .Select(n =>
@@ -56,9 +55,9 @@ namespace RetentionService.Tests.Common
                         ? n.Split(':')
                         : new[] { n, n };
 
-                    return new ResourceDetails
+                    return new FakeResource
                     {
-                        Address = addressAgePair[0],
+                        Id = addressAgePair[0],
                         Age = TimeSpan.FromDays(double.Parse(addressAgePair[1]))
                     };
                 })

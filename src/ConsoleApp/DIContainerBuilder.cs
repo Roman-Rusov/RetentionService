@@ -18,24 +18,24 @@ namespace RetentionService.ConsoleApp
         /// Builds DI container.
         /// </summary>
         /// <returns> An instance of DI container. </returns>
-        public IContainer BuildContainer()
+        public IContainer Build()
         {
             var builder = new ContainerBuilder();
 
-            var logConfig = LogConfigBuilder.Build();
-            builder.RegisterModule(new LoggingModule(logConfig));
-
-            RegisterConfigSingleton(builder);
-            RegisterStorage(builder);
-            RegisterRetentionPolicy(builder);
-
-            builder.RegisterType<CleanupExecutor>().AsSelf();
-            builder.RegisterType<App>().AsSelf();
+            RegisterLogging(builder);
+            RegisterConfiguration(builder);
+            RegisterApplication<string>(builder);
 
             return builder.Build();
         }
 
-        private static void RegisterConfigSingleton(ContainerBuilder builder)
+        private static void RegisterLogging(ContainerBuilder builder)
+        {
+            var logConfig = LogConfigBuilder.Build();
+            builder.RegisterModule(new LoggingModule(logConfig));
+        }
+
+        private static void RegisterConfiguration(ContainerBuilder builder)
         {
             builder.RegisterType<AppConfigBuilder>().AsSelf();
 
@@ -44,10 +44,19 @@ namespace RetentionService.ConsoleApp
                 .SingleInstance();
         }
 
-        private static void RegisterStorage(ContainerBuilder builder) =>
+        private static void RegisterApplication<TResourceId>(ContainerBuilder builder)
+        {
+            RegisterStorage<TResourceId>(builder);
+            RegisterRetentionPolicy(builder);
+
+            builder.RegisterType<CleanupExecutor>().AsSelf();
+            builder.RegisterType<App<TResourceId>>().As<IApp>();
+        }
+
+        private static void RegisterStorage<TResourceId>(ContainerBuilder builder) =>
             builder
                 .RegisterType<DirectoryFileStorage>()
-                .As<IResourceStorage>()
+                .As<IResourceStorage<TResourceId>>()
                 .WithParameter(
                     // Note: This approach is rather fragile.
                     (pi, ctx) => pi.ParameterType == typeof(string) && pi.Name == "directoryPath",
@@ -56,6 +65,6 @@ namespace RetentionService.ConsoleApp
         private static void RegisterRetentionPolicy(ContainerBuilder builder) =>
             builder
                 .Register(ctx => new RetentionPolicy(ctx.Resolve<AppConfig>().RetentionRules))
-                .As<IStaleItemsDetector>();
+                .As<IResourceExpirationPolicy>();
     }
 }

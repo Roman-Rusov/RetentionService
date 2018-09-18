@@ -10,7 +10,7 @@ using RetentionService.Cleanup.Contracts;
 namespace RetentionService.Cleanup
 {
     /// <summary>
-    /// Represents the objects that performs cleaning up in a storage of resources.
+    /// Represents the object that performs cleaning up in a storage of resources.
     /// </summary>
     public class CleanupExecutor
     {
@@ -40,52 +40,48 @@ namespace RetentionService.Cleanup
         }
 
         /// <summary>
-        /// Finds out stale resources in the <paramref name="resourceStorage"/>
-        /// and then deletes them.
+        /// Finds out expired resources in the <paramref name="resourceStorage"/> and deletes them.
         /// </summary>
+        /// <typeparam name="T"> The type of an identifier of a resource. </typeparam>
         /// <param name="resourceStorage">
         /// The storage where to perform cleanup in.
         /// </param>
-        /// <param name="staleItemsDetector">
-        /// The mean to find out which resources are stale.
+        /// <param name="expirationPolicy">
+        /// The resource expiration policy.
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="resourceStorage"/> is <see langword="null"/> or
-        /// <paramref name="staleItemsDetector"/> is <see langword="null"/>.
+        /// <paramref name="expirationPolicy"/> is <see langword="null"/>.
         /// </exception>
-        public async Task ExecuteStorageCleanup(
-            [NotNull] IResourceStorage resourceStorage,
-            [NotNull] IStaleItemsDetector staleItemsDetector)
+        public async Task ExecuteStorageCleanup<T>(
+            [NotNull] IResourceStorage<T> resourceStorage,
+            [NotNull] IResourceExpirationPolicy expirationPolicy)
         {
             AssertArg.NotNull(resourceStorage, nameof(resourceStorage));
-            AssertArg.NotNull(staleItemsDetector, nameof(staleItemsDetector));
+            AssertArg.NotNull(expirationPolicy, nameof(expirationPolicy));
 
             _log?.Debug($"Calling {resourceStorage.GetType().Name} storage for resource details.");
 
-            var resourceDetails = (await resourceStorage.GetResourceDetails()).ToArray();
+            var resources = (await resourceStorage.GetResourceDetails()).ToArray();
 
-            _log?.Debug($"Fetched details about {resourceDetails.Length} resources.");
+            _log?.Debug($"Fetched details about {resources.Length} resources.");
 
-            var itemsToExamine = resourceDetails
-                .OrderByDescending(rd => rd.Age)
-                .Select(rd => (rd.Address, rd.Age));
-
-            var resourceAddressesToDelete = staleItemsDetector
-                .FindStaleItems(itemsToExamine)
+            var resourceIdsToDelete = expirationPolicy
+                .FindExpiredResources(resources)
                 .ToArray();
 
-            if (!resourceAddressesToDelete.Any())
+            if (!resourceIdsToDelete.Any())
             {
-                _log?.Info("No stale resources were found thus no resource is deleted.");
+                _log?.Info("No expired resources were found thus no resource is deleted.");
 
                 return;
             }
 
-            _log?.Debug($"Calling {resourceStorage.GetType().Name} storage for stale resources deletion.");
+            _log?.Debug($"Calling {resourceStorage.GetType().Name} storage for expired resources deletion.");
 
-            await resourceStorage.DeleteResources(resourceAddressesToDelete);
+            await resourceStorage.DeleteResources(resourceIdsToDelete);
 
-            _log?.Debug($"Deleted {resourceAddressesToDelete.Length} stale resources.");
+            _log?.Debug($"Deleted {resourceIdsToDelete.Length} expired resources.");
         }
     }
 }

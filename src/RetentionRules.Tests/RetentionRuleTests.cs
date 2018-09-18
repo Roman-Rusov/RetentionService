@@ -26,7 +26,7 @@ namespace RetentionService.RetentionRules.Tests
         [TestCase(-1)]
         [TestCase((int)-1e6)]
         [TestCase(-int.MaxValue)]
-        public void Ctor_should_throw_ArgumentOutOfRangeException_if_allowed_amount_argument_is_negative(
+        public void Ctor_should_throw_ArgumentOutOfRangeException_if_allowedAmount_argument_is_negative(
             int allowedAmount)
         {
             Assert.Throws<ArgumentOutOfRangeException>(
@@ -36,7 +36,7 @@ namespace RetentionService.RetentionRules.Tests
         [TestCase(-1e-8)]
         [TestCase(-5D)]
         [TestCase(-1e6)]
-        public void Ctor_should_throw_ArgumentOutOfRangeException_if_older_than_argument_is_negative(
+        public void Ctor_should_throw_ArgumentOutOfRangeException_if_olderThan_argument_is_negative(
             double olderThanDays)
         {
             var olderThan = TimeSpan.FromDays(olderThanDays);

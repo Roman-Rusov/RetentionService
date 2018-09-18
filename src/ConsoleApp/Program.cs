@@ -14,9 +14,10 @@ namespace RetentionService.ConsoleApp
         /// </summary>
         private static async Task Main()
         {
-            var container = new DIContainerBuilder().BuildContainer();
-
-            await container.Resolve<App>().Run();
+            using (var container = new DIContainerBuilder().Build())
+            {
+                await container.Resolve<IApp>().Run();
+            }
         }
     }
 }

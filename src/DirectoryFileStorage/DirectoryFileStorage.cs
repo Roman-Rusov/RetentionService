@@ -16,7 +16,7 @@ namespace RetentionService.FileSystemStorage
     /// <summary>
     /// Represents the storage that essentially is a directory containing files.
     /// </summary>
-    public class DirectoryFileStorage : IResourceStorage
+    public class DirectoryFileStorage : IResourceStorage<string>
     {
         private readonly string _directoryPath;
         [CanBeNull] private readonly ILog _log;
@@ -59,41 +59,45 @@ namespace RetentionService.FileSystemStorage
         }
 
         /// <summary>
-        /// Gets details on all the resources being stored in the storage.
+        /// Gets details on all the file resources being stored in the storage.
         /// </summary>
-        /// <returns> A sequence of details of resources. </returns>
-        public Task<IEnumerable<ResourceDetails>> GetResourceDetails()
+        /// <returns> A sequence of details of file resources. </returns>
+        public Task<IEnumerable<IResource<string>>> GetResourceDetails()
         {
             var fileDetailsQuery =
                 from fullFilePath
                     in Directory.EnumerateFiles(_directoryPath)
                 let lastWriteTimeUtc = File.GetLastWriteTimeUtc(fullFilePath)
-                select new ResourceDetails
+                select new FileResource
                     {
-                        Address = fullFilePath,
+                        Id = fullFilePath,
                         Age = DateTime.UtcNow - lastWriteTimeUtc
                     };
 
-            var fileDetails = fileDetailsQuery.ToArray();
+            var fileResources = fileDetailsQuery.ToArray();
 
             _log?.Debug(
-                fileDetails.Any()
+                fileResources.Any()
                     ? $"The following files are found:{NewLine}" +
-                      $"{string.Join(NewLine, fileDetails.Select(fd => $"\t{fd}"))}"
+                      $"{string.Join(NewLine, fileResources.Select(fr => $"\t{fr}"))}"
                     : "No files are found.");
 
-            return Task.FromResult(fileDetails.AsEnumerable());
+            var result = fileResources
+                .Cast<IResource<string>>()
+                .AsEnumerable();
+
+            return Task.FromResult(result);
         }
 
         /// <summary>
-        /// Deletes files that are specified in the <paramref name="resourceAddresses"/> argument.
+        /// Deletes files that are specified in the <paramref name="resourceIds"/> argument.
         /// </summary>
-        /// <param name="resourceAddresses">
+        /// <param name="resourceIds">
         /// The sequence of full names of files to delete.
         /// </param>
-        public Task DeleteResources(IEnumerable<string> resourceAddresses)
+        public Task DeleteResources(IEnumerable<string> resourceIds)
         {
-            var fileNamesToDelete = resourceAddresses.ToArray();
+            var fileNamesToDelete = resourceIds.ToArray();
 
             fileNamesToDelete.ForEach(File.Delete);
 

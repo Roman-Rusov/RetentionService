@@ -55,7 +55,7 @@ namespace RetentionService.IntegrationTests
             "1:5 3:3 5:2 10:1 14:0",
             "0.2 0.9 1.1 2 3 4 5 6",
             "0.2 0.9 1.1 2 3 4 5")]
-        public async Task CleanupExecutor_should_delete_stale_files(
+        public async Task CleanupExecutor_should_delete_expired_files(
             string rulesData,
             string resourceDetails,
             string expectedRetainedFiles)
@@ -68,14 +68,7 @@ namespace RetentionService.IntegrationTests
             var rules = rulesData.ParseRules();
             var policy = new RetentionPolicy(rules);
 
-            var resources = resourceDetails.ParseResourceDetails();
-
-            resources.ForEach(i =>
-            {
-                var resourceAddress = Path.Combine(_storageDirectory, $"{i.Address}.{FileExtension}");
-                File.AppendAllText(resourceAddress, string.Empty); // Create empty file.
-                File.SetLastWriteTimeUtc(resourceAddress, now - i.Age);
-            });
+            CreateFilesInStorage(resourceDetails, now);
 
             var storage = new DirectoryFileStorage(_storageDirectory);
 
@@ -88,6 +81,18 @@ namespace RetentionService.IntegrationTests
                 .Select(Path.GetFileNameWithoutExtension);
 
             actualRetainedFileNames.ShouldAllBeEquivalentTo(expectedRetainedFileNames);
+        }
+
+        private void CreateFilesInStorage(string resourceDetails, DateTime now)
+        {
+            var resources = resourceDetails.ParseResources();
+
+            resources.ForEach(r =>
+            {
+                var filePath = Path.Combine(_storageDirectory, $"{r.Id}.{FileExtension}");
+                File.AppendAllText(filePath, string.Empty); // Create empty file.
+                File.SetLastWriteTimeUtc(filePath, now - r.Age);
+            });
         }
     }
 }

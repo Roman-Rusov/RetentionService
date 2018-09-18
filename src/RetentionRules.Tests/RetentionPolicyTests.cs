@@ -5,6 +5,7 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
+using RetentionService.Cleanup.Contracts;
 using RetentionService.Tests.Common;
 
 using static System.StringSplitOptions;
@@ -27,6 +28,14 @@ namespace RetentionService.RetentionRules.Tests
         [Test]
         public void Ctor_should_throw_ArgumentException_if_rules_argument_contains_null_element() =>
             AssertConstructorThrows<ArgumentException>(new RetentionRule[] { null });
+
+        [Test]
+        public void FindExpiredResources_should_throw_ArgumentNullException_if_resources_argument_is_null() =>
+            AssertFindExpiredResourcesThrows<ArgumentNullException>(null);
+
+        [Test]
+        public void FindExpiredResources_should_throw_ArgumentException_if_resources_argument_contains_null_element() =>
+            AssertFindExpiredResourcesThrows<ArgumentException>(new IResource<string>[] { null });
 
         [TestCase(
             "5:1",
@@ -54,23 +63,22 @@ namespace RetentionService.RetentionRules.Tests
             Description =
                 "A rule spans upon items that are older than the rule's date. " +
                 "Items having age equal to the rule's date are not in the scope of the rule.")]
-        public void FindStaleItems_should_find_stale_items_in_accordance_with_retention_rules(
+        public void FindExpiredResources_should_find_expired_resources_in_accordance_with_retention_rules(
             string rulesData,
             string resourceDetails,
-            string expectedStaleItemsData)
+            string expectedExpiredSrourcesIdsData)
         {
             // Arrange.
             var rules = rulesData.ParseRules();
             var policy = new RetentionPolicy(rules);
-            var resources = resourceDetails.ParseResourceDetails();
-            var items = resources.Select(r => (r.Address, r.Age));
-            var expectedStaleItems = expectedStaleItemsData.Split(new []{' '}, RemoveEmptyEntries);
+            var resources = resourceDetails.ParseResources();
+            var expectedExpiredResourceIds = expectedExpiredSrourcesIdsData.Split(" ", RemoveEmptyEntries);
 
             // Act.
-            var actualStaleItems = policy.FindStaleItems(items).ToArray();
+            var actualExpiredResourceIds = policy.FindExpiredResources(resources).ToArray();
 
             // Assert.
-            actualStaleItems.Should().BeEquivalentTo(expectedStaleItems);
+            actualExpiredResourceIds.Should().BeEquivalentTo(expectedExpiredResourceIds);
         }
 
         private static void AssertConstructorThrows<TException>(
@@ -79,6 +87,19 @@ namespace RetentionService.RetentionRules.Tests
         {
             // Act + Assert.
             Assert.Throws<TException>(() => new RetentionPolicy(rules));
+        }
+
+        private static void AssertFindExpiredResourcesThrows<TException>(
+            IReadOnlyCollection<IResource<string>> resources)
+            where TException : Exception
+        {
+            // Arrange.
+            var validRules = "5:4 10:2".ParseRules();
+            var policy = new RetentionPolicy(validRules);
+
+            // Act + Assert.
+            Assert.Throws<TException>(
+                () => policy.FindExpiredResources(resources));
         }
     }
 }

@@ -8,22 +8,24 @@ namespace RetentionService.Cleanup.Contracts
     /// <summary>
     /// Represents a storage of arbitrary resources.
     /// </summary>
-    public interface IResourceStorage
+    /// <typeparam name="T">
+    /// The type of an identifier of a resource.
+    /// </typeparam>
+    public interface IResourceStorage<T>
     {
         /// <summary>
-        /// Gets details on all the resources being stored in the storage.
+        /// Gets all the resources being stored in the storage.
         /// </summary>
-        /// <returns> A sequence of details of resources. </returns>
+        /// <returns> A sequence of resources. </returns>
         [NotNull]
-        Task<IEnumerable<ResourceDetails>> GetResourceDetails();
+        Task<IEnumerable<IResource<T>>> GetResourceDetails();
 
         /// <summary>
-        /// Deletes resources specified by the <paramref name="resourceAddresses"/>
-        /// from the storage.
+        /// Deletes resources specified by the <paramref name="resourceIds"/> from the storage.
         /// </summary>
-        /// <param name="resourceAddresses">
-        /// The addresses that identify the resources to delete.
+        /// <param name="resourceIds">
+        /// The identifiers of the resources to delete.
         /// </param>
-        Task DeleteResources([NotNull, ItemNotNull] IEnumerable<string> resourceAddresses);
+        Task DeleteResources([NotNull, ItemNotNull] IEnumerable<T> resourceIds);
     }
 }

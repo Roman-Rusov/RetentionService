@@ -16,7 +16,7 @@ namespace RetentionService.RetentionRules
     /// The policy is defined by a set of conformed retention rules that
     /// do neither contradict nor duplicate each other.
     /// </remarks>
-    public class RetentionPolicy : IStaleItemsDetector
+    public class RetentionPolicy : IResourceExpirationPolicy
     {
         private static readonly RulesConsistencyValidator Validator = new RulesConsistencyValidator();
 
@@ -49,50 +49,52 @@ namespace RetentionService.RetentionRules
         }
 
         /// <summary>
-        /// Finds and returns stale items.
+        /// Finds expired resources among the <paramref name="resources"/> specified.
         /// </summary>
-        /// <typeparam name="T">The type of an item.</typeparam>
-        /// <param name="items">The sequence of pairs of an item and its age.</param>
-        /// <returns>The sequence of stale items.</returns>
-        /// <exception cref="T:System.ArgumentNullException">
-        /// <paramref name="items" /> is <see langword="null" />.
+        /// <typeparam name="T"> The type of an identifier of a resource. </typeparam>
+        /// <param name="resources">The sequence resources.</param>
+        /// <returns> The sequence of identifiers of expired resources. </returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="resources"/> is <see langword="null"/>.
         /// </exception>
-        public IEnumerable<T> FindStaleItems<T>(IEnumerable<(T item, TimeSpan age)> items)
+        public IEnumerable<T> FindExpiredResources<T>(IReadOnlyCollection<IResource<T>> resources)
         {
-            AssertArg.NotNull(items, nameof(items));
+            AssertArg.NotNull(resources, nameof(resources));
+            AssertArg.NoNullItems(resources, nameof(resources));
 
-            var orderedItems = items.OrderBy(i => i.age).ToArray();
-            var examineScope = (startIndex: 0, length: orderedItems.Length);
+            var orderedResources = resources.OrderBy(i => i.Age).ToArray();
+            var examineScopeStartIndex = 0;
+            var examineScopeLength = orderedResources.Length;
 
             foreach (var rule in _orderedRules)
             {
-                if (examineScope.length <= 0) break;
+                if (examineScopeLength <= 0) break;
 
-                var examineScopeItems = orderedItems
-                    .Skip(examineScope.startIndex)
-                    .Take(examineScope.length)
+                var examineScopeResources = orderedResources
+                    .Skip(examineScopeStartIndex)
+                    .Take(examineScopeLength)
                     .ToArray();
 
-                var outOfRuleCount = examineScopeItems
-                    .TakeWhile(i => i.age <= rule.OlderThan)
+                var outOfRuleCount = examineScopeResources
+                    .TakeWhile(i => i.Age <= rule.OlderThan)
                     .Count();
 
-                var retainCount = examineScopeItems
+                var retainCount = examineScopeResources
                     .Skip(outOfRuleCount)
                     .Take(rule.AllowedAmount)
                     .Count();
 
-                examineScope.startIndex += outOfRuleCount;
-                examineScope.length = retainCount;
+                examineScopeStartIndex += outOfRuleCount;
+                examineScopeLength = retainCount;
             }
 
             var totalRetainCount =
-                examineScope.startIndex +
-                examineScope.length;
+                examineScopeStartIndex +
+                examineScopeLength;
 
-            return orderedItems
+            return orderedResources
                 .Skip(totalRetainCount)
-                .Select(i => i.item);
+                .Select(i => i.Id);
         }
 
         /// <summary>
