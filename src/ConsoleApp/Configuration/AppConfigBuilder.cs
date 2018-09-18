@@ -20,11 +20,6 @@ namespace RetentionService.ConsoleApp.Configuration
         private const string CleanupDirectoryPathSettingName = nameof(AppConfig.CleanupDirectoryPath);
         private const string RetentionRulesSettingName = nameof(AppConfig.RetentionRules);
 
-        private const string RetentionRuleClassName = nameof(RetentionRule);
-
-        private const string RetentionRuleOlderThanPropertyName = nameof(RetentionRule.OlderThan);
-        private const string RetentionRuleAllowedAmountPropertyName = nameof(RetentionRule.AllowedAmount);
-
         private const string AppConfigRootSectionName = "cleanup";
 
         private const string NotSpecifiedPhrase = "<not specified>";
@@ -131,11 +126,11 @@ namespace RetentionService.ConsoleApp.Configuration
         {
             var olderThanDays = ReadRetentionRuleProperty<int>(
                 retentionRuleSection,
-                RetentionRuleOlderThanPropertyName);
+                nameof(RetentionRule.OlderThan));
 
             var allowedAmount = ReadRetentionRuleProperty<int>(
                 retentionRuleSection,
-                RetentionRuleAllowedAmountPropertyName);
+                nameof(RetentionRule.AllowedAmount));
 
             var olderThan = TimeSpan.FromDays(olderThanDays);
 
@@ -151,7 +146,7 @@ namespace RetentionService.ConsoleApp.Configuration
             return propertySection.Exists()
                 ? propertySection.Get<T>()
                 : throw new Exception(
-                    $"{propertyName} property is not specified for a {RetentionRuleClassName}.");
+                    $"{propertyName} property is not specified for a {nameof(RetentionRule)}.");
         }
     }
 }
