@@ -20,7 +20,12 @@ namespace Logging
         /// <exception cref="ArgumentNullException">
         /// <paramref name="logImpl"/> is <see langword="null"/>.
         /// </exception>
-        public Log4NetWrapper(log4net.ILog logImpl) => _logImpl = logImpl;
+        public Log4NetWrapper(log4net.ILog logImpl)
+        {
+            AssertArg.NotNull(logImpl, nameof(logImpl));
+
+            _logImpl = logImpl;
+        }
 
         /// <inheritdoc/>
         public void Debug(string message) => _logImpl.Debug(message);
