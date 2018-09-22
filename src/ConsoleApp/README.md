@@ -42,10 +42,10 @@ Please note that the task is not being executed when machine is working on batte
 
 The service requires the following settings to be configured in the:
 * [app.config.json](app.config.json) file in the `cleanup` node:
-  * `cleanupDirectoryPath` - a directory to monitor and cleanup,
-  * `retentionRules` - rules that define which files in the directory should be retained,
+  * [`cleanupDirectoryPath`](#directory-to-monitor-and-cleanup) - a directory to monitor and cleanup,
+  * [`retentionRules`](#retention-rules) - rules that define which files in the directory should be retained,
 * [log.config.ini](log.config.ini) file:
-  * `ConfigFilePath` property in the `[log4net]` section - a path of the log4net configuration file.
+  * [`ConfigFilePath`](#logs-configuration-file-path) property in the `[log4net]` section - a path of the log4net configuration file.
 
 ### Directory to monitor and cleanup
 
@@ -72,9 +72,9 @@ The `retentionRules` setting specifies an array of rules of retaining files in t
   "allowedAmount": number
 },
 ```
-
-* where `olderThan` defines a scope of a rule as "older than days", i.e. which items the rule can be applied to,
-* and `allowedAmount` defines a number of items under the rule that can be kept retained.
+where
+* `olderThan` defines a scope of a rule as "older than days", i.e. which items the rule can be applied to,
+* `allowedAmount` defines a number of items under the rule that can be kept retained.
 
 <a id="retention-rules--example" name="retention-rules--example"></a>
 #### Example
