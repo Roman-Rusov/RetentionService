@@ -8,3 +8,14 @@ before_build:
 
 build:
   verbosity: minimal
+
+only_commits:
+  files:
+    - src/
+
+skip_commits:
+  files:
+    - docs/*
+    - '**/*.md'
+    - .gitignore
+    - .travis.yml
