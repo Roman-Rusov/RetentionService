@@ -11,6 +11,7 @@ build:
 
 only_commits:
   files:
+    - appveyor.yml
     - src/
 
 skip_commits:
