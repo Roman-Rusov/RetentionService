@@ -1,2 +1,7 @@
 language: csharp
+mono: none
+dotnet: 2.1.402
 solution: src/RetentionService.sln
+script:
+  - dotnet build src/RetentionService.sln -c Release
+  - ls src/*Tests/*Tests.csproj | xargs -L1 dotnet test --no-build -c Release
