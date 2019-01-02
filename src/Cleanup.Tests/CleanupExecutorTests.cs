@@ -83,7 +83,7 @@ namespace RetentionService.Cleanup.Tests
             await cleanupExecutor.ExecuteStorageCleanup(storage, expirationPolicy);
 
             // Assert.
-            _deletedResourceIds.ShouldAllBeEquivalentTo(expiredResourceIds);
+            _deletedResourceIds.Should().BeEquivalentTo(expiredResourceIds);
         }
 
         private IResourceStorage<string> CreateFakeStorage(IReadOnlyCollection<FakeResource> resources)

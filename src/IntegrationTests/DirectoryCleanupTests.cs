@@ -80,7 +80,7 @@ namespace RetentionService.IntegrationTests
                 .GetFiles(_settings.DirectoryPath)
                 .Select(Path.GetFileNameWithoutExtension);
 
-            actualRetainedFileNames.ShouldAllBeEquivalentTo(expectedRetainedFileNames);
+            actualRetainedFileNames.Should().BeEquivalentTo(expectedRetainedFileNames);
         }
 
         private void CreateFilesInStorage(string resourceDetails)
