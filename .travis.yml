@@ -1,6 +1,6 @@
 language: csharp
 mono: none
-dotnet: 2.1.402
+dotnet: 2.2
 solution: src/RetentionService.sln
 script:
   - dotnet build src/RetentionService.sln -c Release
