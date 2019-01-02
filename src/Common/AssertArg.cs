@@ -52,6 +52,38 @@ namespace Common
         }
 
         /// <summary>
+        /// Asserts that input <paramref name="value"/> is not <see langword="null"/> or empty.
+        /// </summary>
+        /// <param name="value">The string to test.</param>
+        /// <param name="paramName">The name of the argument.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="value"/> is <see langword="null"/> or empty.
+        /// </exception>
+        public static void NotNullOrEmpty(string value, string paramName)
+        {
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentNullException(
+                    nameof(paramName),
+                    $"{paramName} can be neither null nor empty.");
+        }
+
+        /// <summary>
+        /// Asserts that input <paramref name="value"/> is not <see langword="null"/> or empty or whitespace.
+        /// </summary>
+        /// <param name="value">The string to test.</param>
+        /// <param name="paramName">The name of the argument.</param>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="value"/> is <see langword="null"/> or empty or whitespace.
+        /// </exception>
+        public static void NotNullOrWhiteSpace(string value, string paramName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentNullException(
+                    nameof(paramName),
+                    $"{paramName} can be neither null nor empty nor whitespace.");
+        }
+
+        /// <summary>
         /// Asserts that input <paramref name="collection"/> contains no <see langword="null"/> items.
         /// </summary>
         /// <typeparam name="T">

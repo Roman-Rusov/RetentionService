@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Common;
 using Logging;
 
 using RetentionService.Cleanup;
@@ -21,6 +22,8 @@ namespace RetentionService.ConsoleApp
         public IContainer Build()
         {
             var builder = new ContainerBuilder();
+
+            builder.RegisterType<SystemClock>().As<ISystemClock>().SingleInstance();
 
             RegisterLogging(builder);
             RegisterConfiguration(builder);
@@ -53,14 +56,20 @@ namespace RetentionService.ConsoleApp
             builder.RegisterType<App<TResourceId>>().As<IApp>();
         }
 
-        private static void RegisterStorage<TResourceId>(ContainerBuilder builder) =>
+        private static void RegisterStorage<TResourceId>(ContainerBuilder builder)
+        {
             builder
-                .RegisterType<DirectoryFileStorage>()
-                .As<IResourceStorage<TResourceId>>()
+                .RegisterType<DirectoryFileStorageSettings>()
+                .AsSelf()
                 .WithParameter(
                     // Note: This approach is rather fragile.
                     (pi, ctx) => pi.ParameterType == typeof(string) && pi.Name == "directoryPath",
                     (pi, ctx) => ctx.Resolve<AppConfig>().CleanupDirectoryPath);
+
+            builder
+                .RegisterType<DirectoryFileStorage>()
+                .As<IResourceStorage<TResourceId>>();
+        }
 
         private static void RegisterRetentionPolicy(ContainerBuilder builder) =>
             builder

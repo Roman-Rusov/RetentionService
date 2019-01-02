@@ -18,24 +18,32 @@ namespace RetentionService.FileSystemStorage
     /// </summary>
     public class DirectoryFileStorage : IResourceStorage<string>
     {
-        private readonly string _directoryPath;
+        private readonly ISystemClock _systemClock;
+        private readonly DirectoryFileStorageSettings _settings;
         [CanBeNull] private readonly ILog _log;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectoryFileStorage" /> class.
         /// </summary>
-        /// <param name="directoryPath">
-        /// The directory where to perform a cleanup.
+        /// <param name="systemClock">
+        /// The source of system clock.
+        /// </param>
+        /// <param name="settings">
+        /// The settings of the storage.
         /// </param>
         /// <param name="log">
         /// A log where to write log messages into.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="directoryPath"/> is <see langword="null"/> or empty, or
+        /// <paramref name="systemClock"/> or
+        /// <paramref name="settings"/> or
         /// <paramref name="log"/> is <see langword="null"/>.
         /// </exception>
-        public DirectoryFileStorage(string directoryPath, ILog log)
-            : this(directoryPath)
+        public DirectoryFileStorage(
+            [NotNull] ISystemClock systemClock,
+            [NotNull] DirectoryFileStorageSettings settings,
+            [NotNull] ILog log)
+            : this(systemClock, settings)
         {
             AssertArg.NotNull(log, nameof(log));
 
@@ -45,17 +53,25 @@ namespace RetentionService.FileSystemStorage
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectoryFileStorage" /> class.
         /// </summary>
-        /// <param name="directoryPath">
-        /// The directory where to perform a cleanup.
+        /// <param name="systemClock">
+        /// The source of system clock.
+        /// </param>
+        /// <param name="settings">
+        /// The settings of the storage.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="directoryPath"/> is <see langword="null"/> or empty.
+        /// <paramref name="systemClock"/> or
+        /// <paramref name="settings"/> is <see langword="null"/>.
         /// </exception>
-        public DirectoryFileStorage(string directoryPath)
+        public DirectoryFileStorage(
+            [NotNull] ISystemClock systemClock,
+            [NotNull] DirectoryFileStorageSettings settings)
         {
-            AssertDirectoryPath(directoryPath);
+            AssertArg.NotNull(systemClock, nameof(systemClock));
+            AssertArg.NotNull(settings, nameof(settings));
 
-            _directoryPath = directoryPath;
+            _systemClock = systemClock;
+            _settings = settings;
         }
 
         /// <summary>
@@ -64,14 +80,16 @@ namespace RetentionService.FileSystemStorage
         /// <returns> A sequence of details of file resources. </returns>
         public Task<IEnumerable<IResource<string>>> GetResourceDetails()
         {
+            var utcNow = _systemClock.UtcNow;
+
             var fileDetailsQuery =
                 from fullFilePath
-                    in Directory.EnumerateFiles(_directoryPath)
+                    in Directory.EnumerateFiles(_settings.DirectoryPath)
                 let lastWriteTimeUtc = File.GetLastWriteTimeUtc(fullFilePath)
                 select new FileResource
                     {
                         Id = fullFilePath,
-                        Age = DateTime.UtcNow - lastWriteTimeUtc
+                        Age = utcNow - lastWriteTimeUtc
                     };
 
             var fileResources = fileDetailsQuery.ToArray();
@@ -79,7 +97,7 @@ namespace RetentionService.FileSystemStorage
             _log?.Debug(
                 fileResources.Any()
                     ? $"The following files are found:{NewLine}" +
-                      $"{string.Join(NewLine, fileResources.Select(fr => $"\t{fr}"))}"
+                      fileResources.Select(fr => $"\t{fr}").JoinThrough(NewLine)
                     : "No files are found.");
 
             var result = fileResources
@@ -97,23 +115,17 @@ namespace RetentionService.FileSystemStorage
         /// </param>
         public Task DeleteResources(IEnumerable<string> resourceIds)
         {
+            AssertArg.NotNull(resourceIds, nameof(resourceIds));
+
             var fileNamesToDelete = resourceIds.ToArray();
 
             fileNamesToDelete.ForEach(File.Delete);
 
             _log?.Debug(
                 $"The following files were removed:{NewLine}" +
-                $"{string.Join(NewLine, fileNamesToDelete.Select(fn => $"\t{fn}"))}");
+                fileNamesToDelete.Select(fn => $"\t{fn}").JoinThrough(NewLine));
 
             return Task.CompletedTask;
-        }
-
-        private static void AssertDirectoryPath(string backupDirectoryPath)
-        {
-            if (string.IsNullOrWhiteSpace(backupDirectoryPath))
-                throw new ArgumentNullException(
-                    nameof(backupDirectoryPath),
-                    "Backup directory path cannot be empty.");
         }
     }
 }

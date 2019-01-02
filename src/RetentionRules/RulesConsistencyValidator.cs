@@ -16,7 +16,7 @@ namespace RetentionService.RetentionRules
         /// Performs validation of the <paramref name="rules"/>.
         /// </summary>
         /// <param name="rules"> The set of retention rules to validate. </param>
-        public void Validate([NotNull] [ItemNotNull] IReadOnlyCollection<RetentionRule> rules)
+        public void Validate([NotNull, ItemNotNull] IReadOnlyCollection<RetentionRule> rules)
         {
             AssertArg.NotNullOrEmpty(rules, nameof(rules));
             AssertArg.NoNullItems(rules, nameof(rules));
@@ -28,8 +28,7 @@ namespace RetentionService.RetentionRules
 
         private static void AssertNoDuplicates(IReadOnlyCollection<RetentionRule> rules)
         {
-            var uniqueRuleCount = new HashSet<TimeSpan>(rules.Select(r => r.OlderThan)).Count;
-            if (uniqueRuleCount != rules.Count)
+            if (!rules.Select(r => r.OlderThan).AreUnique())
             {
                 throw new ArgumentException("Duplicate rules are not allowed.", nameof(rules));
             }
@@ -37,20 +36,17 @@ namespace RetentionService.RetentionRules
 
         private static void AssertNoContradictions(IReadOnlyCollection<RetentionRule> rules)
         {
-            var orderedRules = rules.OrderBy(r => r.OlderThan).ToArray();
-            var shorterAllowedAmount = orderedRules.First().AllowedAmount;
-            orderedRules.Skip(1).ForEach(r =>
-            {
-                var currentAllowedAmount = r.AllowedAmount;
+            var allowedAmountGrownWithRetention = !rules
+                .OrderByDescending(r => r.OlderThan)
+                .Select(r => r.AllowedAmount)
+                .ToArray()
+                .AreOrdered();
 
-                if (currentAllowedAmount > shorterAllowedAmount)
-                    throw new ArgumentException(
-                        "Longer retention rules cannot allow retaining more items " +
-                        "than shorter retention rules allow.",
-                        nameof(rules));
-
-                shorterAllowedAmount = currentAllowedAmount;
-            });
+            if (allowedAmountGrownWithRetention)
+                throw new ArgumentException(
+                    "Longer retention rules cannot allow retaining more items " +
+                    "than shorter retention rules allow.",
+                    nameof(rules));
         }
     }
 }

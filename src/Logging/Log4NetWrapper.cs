@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Common;
+using JetBrains.Annotations;
 
 namespace Logging
 {
@@ -20,7 +21,8 @@ namespace Logging
         /// <exception cref="ArgumentNullException">
         /// <paramref name="logImpl"/> is <see langword="null"/>.
         /// </exception>
-        public Log4NetWrapper(log4net.ILog logImpl)
+        public Log4NetWrapper(
+            [NotNull] log4net.ILog logImpl)
         {
             AssertArg.NotNull(logImpl, nameof(logImpl));
 

@@ -114,7 +114,7 @@ namespace RetentionService.ConsoleApp.Configuration
                 .ToArray();
 
             var value = retentionRules.Any()
-                ? string.Join(", ", retentionRules.AsEnumerable())
+                ? retentionRules.JoinThrough(", ")
                 : NotSpecifiedPhrase;
 
             _log?.Debug($"{ConfigName}: {RetentionRulesSettingName} = {value}");

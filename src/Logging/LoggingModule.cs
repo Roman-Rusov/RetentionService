@@ -5,6 +5,7 @@ using System.Reflection;
 
 using Autofac.Core;
 using Common;
+using JetBrains.Annotations;
 using log4net;
 using log4net.Config;
 
@@ -39,7 +40,7 @@ namespace Logging
         /// <exception cref="ArgumentNullException">
         /// <paramref name="config"/> is <see langword="null"/>.
         /// </exception>
-        public LoggingModule(ILogConfiguration config)
+        public LoggingModule([NotNull] ILogConfiguration config)
         {
             AssertArg.NotNull(config, nameof(config));
 

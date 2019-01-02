@@ -36,7 +36,7 @@ namespace RetentionService.RetentionRules
         /// <paramref name="rules"/> is empty or
         /// <paramref name="rules"/> contains duplicate or mutually contradictory items.
         /// </exception>
-        public RetentionPolicy([NotNull][ItemNotNull] IReadOnlyCollection<RetentionRule> rules)
+        public RetentionPolicy([NotNull, ItemNotNull] IReadOnlyCollection<RetentionRule> rules)
         {
             AssertArg.NotNullOrEmpty(rules, nameof(rules));
             AssertArg.NoNullItems(rules, nameof(rules));
@@ -104,6 +104,6 @@ namespace RetentionService.RetentionRules
         /// A string that represents a collection of rules that define the policy.
         /// </returns>
         public override string ToString() =>
-            string.Join(" ", _orderedRules);
+            _orderedRules.JoinThrough(" ");
     }
 }

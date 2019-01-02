@@ -21,6 +21,6 @@ namespace RetentionService.Cleanup.Contracts
         /// </exception>
         [NotNull]
         IEnumerable<T> FindExpiredResources<T>(
-            [NotNull][ItemNotNull] IReadOnlyCollection<IResource<T>> resources);
+            [NotNull, ItemNotNull] IReadOnlyCollection<IResource<T>> resources);
     }
 }

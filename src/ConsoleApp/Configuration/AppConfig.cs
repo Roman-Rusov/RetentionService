@@ -39,7 +39,7 @@ namespace RetentionService.ConsoleApp.Configuration
         /// The sequence of retention rules.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="cleanupDirectoryPath"/> is <see langword="null"/> or
+        /// <paramref name="cleanupDirectoryPath"/> is <see langword="null"/> or empty or whitespace or
         /// <paramref name="retentionRules"/> is <see langword="null"/>.
         /// </exception>
         /// <exception cref="ArgumentException">
@@ -49,7 +49,7 @@ namespace RetentionService.ConsoleApp.Configuration
             [NotNull] string cleanupDirectoryPath,
             [NotNull, ItemNotNull] IReadOnlyCollection<RetentionRule> retentionRules)
         {
-            AssertArg.NotNull(cleanupDirectoryPath, nameof(cleanupDirectoryPath));
+            AssertArg.NotNullOrWhiteSpace(cleanupDirectoryPath, nameof(cleanupDirectoryPath));
             AssertArg.NotNull(retentionRules, nameof(retentionRules));
             AssertArg.NoNullItems(retentionRules, nameof(retentionRules));
 

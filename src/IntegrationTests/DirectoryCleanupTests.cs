@@ -25,23 +25,25 @@ namespace RetentionService.IntegrationTests
         private const string TempFolderName = "RetentionService - DirectoryCleanupTests";
         private const string FileExtension = "backup";
 
-        private string _storageDirectory;
+        private DirectoryFileStorageSettings _settings;
 
         [SetUp]
         public void SetUp()
         {
             // TODO:  Use RAM drive.
-            _storageDirectory = Path.Combine(Path.GetTempPath(), TempFolderName);
+            var storageDirectory = Path.Combine(Path.GetTempPath(), TempFolderName);
 
-            if (Directory.Exists(_storageDirectory))
-                Directory.Delete(_storageDirectory, recursive: true);
+            if (Directory.Exists(storageDirectory))
+                Directory.Delete(storageDirectory, recursive: true);
 
-            Directory.CreateDirectory(_storageDirectory);
+            Directory.CreateDirectory(storageDirectory);
+
+            _settings = new DirectoryFileStorageSettings(storageDirectory);
         }
 
         [TearDown]
         public void TearDown() =>
-            Directory.Delete(_storageDirectory, recursive: true);
+            Directory.Delete(_settings.DirectoryPath, recursive: true);
 
         [TestCase(
             "1:1",
@@ -61,21 +63,21 @@ namespace RetentionService.IntegrationTests
             string expectedRetainedFiles)
         {
             // Arrange.
-            var expectedRetainedFileNames = expectedRetainedFiles.Split(new[] {' '}, RemoveEmptyEntries);
+            var expectedRetainedFileNames = expectedRetainedFiles.Split(' ', RemoveEmptyEntries);
 
             var rules = rulesData.ParseRules();
             var policy = new RetentionPolicy(rules);
 
             CreateFilesInStorage(resourceDetails);
 
-            var storage = new DirectoryFileStorage(_storageDirectory);
+            var storage = new DirectoryFileStorage(new SystemClock(), _settings);
 
             // Act.
             await new CleanupExecutor().ExecuteStorageCleanup(storage, policy);
 
             // Assert.
             var actualRetainedFileNames = Directory
-                .GetFiles(_storageDirectory)
+                .GetFiles(_settings.DirectoryPath)
                 .Select(Path.GetFileNameWithoutExtension);
 
             actualRetainedFileNames.ShouldAllBeEquivalentTo(expectedRetainedFileNames);
@@ -89,7 +91,7 @@ namespace RetentionService.IntegrationTests
 
             resources.ForEach(r =>
             {
-                var filePath = Path.Combine(_storageDirectory, $"{r.Id}.{FileExtension}");
+                var filePath = Path.Combine(_settings.DirectoryPath, $"{r.Id}.{FileExtension}");
                 File.AppendAllText(filePath, string.Empty); // Create empty file.
                 File.SetLastWriteTimeUtc(filePath, now - r.Age);
             });
