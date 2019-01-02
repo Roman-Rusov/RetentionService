@@ -60,10 +60,4 @@
     <ProjectReference Include="..\RetentionRules\RetentionRules.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>C:\Users\User\.nuget\packages\autofac\4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
