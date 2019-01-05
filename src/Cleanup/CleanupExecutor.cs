@@ -14,31 +14,6 @@ namespace RetentionService.Cleanup
     /// </summary>
     public class CleanupExecutor
     {
-        [CanBeNull] private readonly ILog _log;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CleanupExecutor"/> class.
-        /// </summary>
-        public CleanupExecutor()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CleanupExecutor"/> class.
-        /// </summary>
-        /// <param name="log">
-        /// A log where to write log messages into.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="log"/> is <see langword="null"/>.
-        /// </exception>
-        public CleanupExecutor([NotNull] ILog log) : this()
-        {
-            AssertArg.NotNull(log, nameof(log));
-
-            _log = log;
-        }
-
         /// <summary>
         /// Finds out expired resources in the <paramref name="resourceStorage"/> and deletes them.
         /// </summary>
@@ -60,11 +35,7 @@ namespace RetentionService.Cleanup
             AssertArg.NotNull(resourceStorage, nameof(resourceStorage));
             AssertArg.NotNull(expirationPolicy, nameof(expirationPolicy));
 
-            _log?.Debug($"Calling {resourceStorage.GetType().Name} storage for resource details.");
-
             var resources = (await resourceStorage.GetResourceDetails()).ToArray();
-
-            _log?.Debug($"Fetched details about {resources.Length} resources.");
 
             var resourceIdsToDelete = expirationPolicy
                 .FindExpiredResources(resources)
@@ -72,16 +43,10 @@ namespace RetentionService.Cleanup
 
             if (!resourceIdsToDelete.Any())
             {
-                _log?.Info("No expired resources were found thus no resource is deleted.");
-
                 return;
             }
 
-            _log?.Debug($"Calling {resourceStorage.GetType().Name} storage for expired resources deletion.");
-
             await resourceStorage.DeleteResources(resourceIdsToDelete);
-
-            _log?.Debug($"Deleted {resourceIdsToDelete.Length} expired resources.");
         }
     }
 }

@@ -46,6 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac.Extras.DynamicProxy" Version="4.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
@@ -56,6 +57,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Cleanup\Cleanup.csproj" />
     <ProjectReference Include="..\DirectoryFileStorage\FileSystemStorage.csproj" />
+    <ProjectReference Include="..\Interception\Interception.csproj" />
     <ProjectReference Include="..\Logging\Logging.csproj" />
     <ProjectReference Include="..\RetentionRules\RetentionRules.csproj" />
   </ItemGroup>

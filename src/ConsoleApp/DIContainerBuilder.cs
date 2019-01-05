@@ -1,6 +1,8 @@
 ﻿using Autofac;
+using Autofac.Extras.DynamicProxy;
 using Common;
 using Logging;
+using Interception;
 
 using RetentionService.Cleanup;
 using RetentionService.Cleanup.Contracts;
@@ -29,6 +31,8 @@ namespace RetentionService.ConsoleApp
             RegisterConfiguration(builder);
             RegisterApplication<string>(builder);
 
+            builder.RegisterType<LoggingInterceptor>().AsSelf();
+
             return builder.Build();
         }
 
@@ -53,7 +57,10 @@ namespace RetentionService.ConsoleApp
             RegisterRetentionPolicy(builder);
 
             builder.RegisterType<CleanupExecutor>().AsSelf();
-            builder.RegisterType<App<TResourceId>>().As<IApp>();
+
+            builder.RegisterType<App<TResourceId>>().As<IApp>()
+                .EnableInterfaceInterceptors()
+                .InterceptedBy(typeof(LoggingInterceptor));
         }
 
         private static void RegisterStorage<TResourceId>(ContainerBuilder builder)
@@ -68,12 +75,16 @@ namespace RetentionService.ConsoleApp
 
             builder
                 .RegisterType<DirectoryFileStorage>()
-                .As<IResourceStorage<TResourceId>>();
+                .As<IResourceStorage<TResourceId>>()
+                .EnableInterfaceInterceptors()
+                .InterceptedBy(typeof(LoggingInterceptor));
         }
 
         private static void RegisterRetentionPolicy(ContainerBuilder builder) =>
             builder
                 .Register(ctx => new RetentionPolicy(ctx.Resolve<AppConfig>().RetentionRules))
-                .As<IResourceExpirationPolicy>();
+                .As<IResourceExpirationPolicy>()
+                .EnableInterfaceInterceptors()
+                .InterceptedBy(typeof(LoggingInterceptor));
     }
 }
